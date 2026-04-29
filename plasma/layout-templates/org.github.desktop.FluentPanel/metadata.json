@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/LayoutTemplate",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "vinceliuice@hotmail.com",
+                "Name": "vince liuice"
+            }
+        ],
+        "Id": "org.github.desktop.FluentPanel",
+        "License": "GPL-3.0",
+        "Name": "Fluent Panel",
+        "Name[zh_CN]": "Fluent 面板",
+        "Version": "1.0"
+    },
+    "X-Plasma-ContainmentCategories": [
+        "panel"
+    ],
+    "X-Plasma-Shell": "plasmashell"
+}
