@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Wallpaper",
+    "KPlugin": {
+        "Id": "Fluent-yellow",
+        "Name": "Fluent-yellow",
+        "License": "GPLv3",
+        "Authors": [
+            {
+                "Name": "Vince Liuice",
+                "Email": "vinceliuice@hotmail.com"
+            }
+        ]
+    }
+}

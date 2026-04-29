@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Wallpaper",
+    "KPlugin": {
+        "Id": "Fluent-round-light",
+        "Name": "Fluent-round-light",
+        "License": "GPLv3",
+        "Authors": [
+            {
+                "Name": "Vince Liuice",
+                "Email": "vinceliuice@hotmail.com"
+            }
+        ]
+    }
+}
