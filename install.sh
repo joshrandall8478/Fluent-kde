@@ -194,6 +194,13 @@ install() {
     # global theme
     sed -i "s|Name=${THEME_NAME}${round}${theme}${color}|Name=${THEME_NAME}${round}${theme}${color}${solid}|" ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}/metadata.desktop
     sed -i "s|Name=com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}|Name=com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}|" ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}/metadata.desktop
+    # Plasma 6 prefers metadata.json over metadata.desktop for KPackage Id/Name; mirror the rewrites so the solid package isn't shadowed by the non-solid one.
+    if [[ -f ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}/metadata.json ]]; then
+      sed -i \
+        -e "s|\"Id\": \"com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}\"|\"Id\": \"com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}\"|" \
+        -e "s|\"Name\": \"${THEME_NAME}${round}${theme}${color}\"|\"Name\": \"${THEME_NAME}${round}${theme}${color}${solid}\"|" \
+        ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}/metadata.json
+    fi
     if [[ "$round" == '-round' ]]; then
       sed -i "s|theme=__aurorae__svg__${THEME_NAME}${round}${color}|theme=__aurorae__svg__${THEME_NAME}${round}${color}${solid}|" ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}/contents/defaults
     fi
