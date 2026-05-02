@@ -233,6 +233,10 @@ install_sddm() {
   [[ -d "${SDDM_DIR}/Fluent" ]] && rm -rf "${SDDM_DIR}/Fluent"
   mkdir -p "${SDDM_DIR}"
   cp -r "${SRC_DIR}/sddm/${sddm_variant}" "${SDDM_DIR}/Fluent"
+  cp -r "${SRC_DIR}/sddm/assets" "${SDDM_DIR}/Fluent/assets"
+  cp "${SRC_DIR}/sddm/preview.png" "${SDDM_DIR}/Fluent/preview.png"
+  cp "${SRC_DIR}/sddm/backgrounds/background.png" "${SDDM_DIR}/Fluent/background.png"
+  mkdir -p "${SDDM_DIR}/Fluent/faces"
 }
 
 while [[ "$#" -gt 0 ]]; do
