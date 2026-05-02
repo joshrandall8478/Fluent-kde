@@ -10,6 +10,7 @@ COLOR_VARIANTS=('' '-light' '-dark')
 
 round=
 solid=
+no_sddm=
 
 # Destination directory
 if [ "$UID" -eq "$ROOT_UID" ]; then
@@ -21,6 +22,7 @@ if [ "$UID" -eq "$ROOT_UID" ]; then
   WALLPAPER_DIR="/usr/share/wallpapers"
   PLASMOIDS_DIR="/usr/share/plasma/plasmoids"
   LAYOUT_DIR="/usr/share/plasma/layout-templates"
+  SDDM_DIR="/usr/share/sddm/themes"
 else
   AURORAE_DIR="$HOME/.local/share/aurorae/themes"
   SCHEMES_DIR="$HOME/.local/share/color-schemes"
@@ -70,6 +72,7 @@ OPTIONS:
   -c, --color VARIANT     Specify color variant(s) [standard|light|dark] (Default: All variants)s)
   --round VARIANT         Specify round variant
   --solid VARIANT         Specify solid variant
+  --no-sddm               Skip installing the SDDM lock-screen theme
   -h, --help              Show help
 EOF
 }
@@ -218,6 +221,27 @@ install_common() {
   cp -r ${SRC_DIR}/Kvantum/${THEME_NAME}-round${solid}                                        ${KVANTUM_DIR}
 }
 
+install_sddm() {
+  [[ "${no_sddm}" == "1" ]] && return 0
+
+  if [[ "$UID" -ne "$ROOT_UID" ]]; then
+    prompt -w "Skipping SDDM theme (needs root). Re-run with sudo to install it."
+    return 0
+  fi
+
+  local sddm_variant
+  if plasmashell --version 2>/dev/null | grep -q '^plasmashell 5\.'; then
+    sddm_variant='Fluent-5.0'
+  else
+    sddm_variant='Fluent-6.0'
+  fi
+
+  prompt -i "Installing SDDM theme (${sddm_variant})..."
+  [[ -d "${SDDM_DIR}/Fluent" ]] && rm -rf "${SDDM_DIR}/Fluent"
+  mkdir -p "${SDDM_DIR}"
+  cp -r "${SRC_DIR}/sddm/${sddm_variant}" "${SDDM_DIR}/Fluent"
+}
+
 while [[ "$#" -gt 0 ]]; do
   case "${1:-}" in
     --round)
@@ -228,6 +252,10 @@ while [[ "$#" -gt 0 ]]; do
     --solid)
       solid='-solid'
       prompt -i "Install solid version."
+      shift
+      ;;
+    --no-sddm)
+      no_sddm='1'
       shift
       ;;
     -t|--theme)
@@ -344,5 +372,6 @@ for theme in "${themes[@]}"; do
 done
 
 install_common
+install_sddm
 
 prompt -s "Install finished..."
