@@ -5,7 +5,6 @@ ROOT_UID=0
 
 THEME_NAME=Fluent
 THEME_VARIANTS=('' '-purple' '-pink' '-red' '-orange' '-yellow' '-green' '-grey' '-teal')
-CTHEME_VARIANTS=('' 'Purple' 'Pink' 'Red' 'Orange' 'Yellow' 'Green' 'Grey' 'Teal')
 COLOR_VARIANTS=('' '-light' '-dark')
 
 round=
@@ -67,7 +66,7 @@ Usage: $0 [OPTION]...
 
 OPTIONS:
   -t, --theme VARIANT     Specify theme color variant(s) [default|purple|pink|red|orange|yellow|green|grey|teal|all] (Default: blue)
-  -c, --color VARIANT     Specify color variant(s) [standard|light|dark] (Default: All variants)s)
+  -c, --color VARIANT     Specify color variant(s) [standard|light|dark] (Default: All variants)
   --round VARIANT         Specify round variant
   --solid VARIANT         Specify solid variant
   -h, --help              Show help
@@ -82,8 +81,6 @@ EOF
 [[ ! -d ${WALLPAPER_DIR} ]] && mkdir -p ${WALLPAPER_DIR}
 [[ ! -d ${PLASMOIDS_DIR} ]] && mkdir -p ${PLASMOIDS_DIR}
 [[ ! -d ${LAYOUT_DIR} ]] && mkdir -p ${LAYOUT_DIR}
-
-cp -rf "${SRC_DIR}"/configs/Xresources "$HOME"/.Xresources
 
 install() {
   local theme="$1"
@@ -131,13 +128,12 @@ install() {
       ;;
   esac
 
-  [[ "$color" == '-dark' ]] && local ELSE_DARK="$color"
   [[ "$color" == '-light' ]] && local ELSE_LIGHT="$color"
 
   [[ -d ${AURORAE_DIR}/${THEME_NAME}${round}${color}${solid} ]]                               && rm -rf ${AURORAE_DIR}/${THEME_NAME}${round}${color}${solid}
-  [[ -d ${AURORAE_DIR}/${THEME_NAME}${round}${color}{'','-normal'} ]]                         && rm -rf ${AURORAE_DIR}/${THEME_NAME}${round}${color}{'','-normal'}
+  for d in ${AURORAE_DIR}/${THEME_NAME}${round}${color}{,-normal}; do [[ -d "$d" ]] && rm -rf "$d"; done
   [[ -d ${PLASMA_DIR}/${THEME_NAME}${round}${theme}${color}${solid} ]]                        && rm -rf ${PLASMA_DIR}/${THEME_NAME}${round}${theme}${color}${solid}
-  [[ -f ${SCHEMES_DIR}/${THEME_NAME}${ctheme}${ccolor}.colors ]]                              && rm -rf ${THEME_NAME}${ctheme}${ccolor}.colors
+  [[ -f ${SCHEMES_DIR}/${THEME_NAME}${ctheme}${ccolor}.colors ]]                              && rm -rf ${SCHEMES_DIR}/${THEME_NAME}${ctheme}${ccolor}.colors
   [[ -d ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid} ]] && rm -rf ${LOOKFEEL_DIR}/com.github.vinceliuice.${THEME_NAME}${round}${theme}${color}${solid}
   [[ -d ${KVANTUM_DIR}/${THEME_NAME}${round}${theme}${solid} ]]                               && rm -rf ${KVANTUM_DIR}/${THEME_NAME}${round}${theme}${solid}
   [[ -d ${WALLPAPER_DIR}/${THEME_NAME}${theme} ]]                                             && rm -rf ${WALLPAPER_DIR}/${THEME_NAME}${theme}
@@ -209,6 +205,23 @@ install_common() {
   cp -r ${SRC_DIR}/plasma/plasmoids/*                                                         ${PLASMOIDS_DIR}
   cp -r ${SRC_DIR}/plasma/layout-templates/*                                                  ${LAYOUT_DIR}
   cp -r ${SRC_DIR}/Kvantum/${THEME_NAME}-round${solid}                                        ${KVANTUM_DIR}
+}
+
+# Resolve the home directory of the user this install is for. Under sudo $HOME
+# is /root, so user-scoped artifacts (Xresources, ~/.cache) need SUDO_USER's home.
+target_home() {
+  if [[ "$UID" -eq "$ROOT_UID" && -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
+    getent passwd "${SUDO_USER}" | cut -d: -f6
+  else
+    echo "${HOME}"
+  fi
+}
+
+install_xresources() {
+  local home
+  home="$(target_home)"
+  [[ -z "${home}" || ! -d "${home}" ]] && return 0
+  cp -rf "${SRC_DIR}/configs/Xresources" "${home}/.Xresources"
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -326,10 +339,6 @@ if [[ "${#colors[@]}" -eq 0 ]] ; then
   colors=("${COLOR_VARIANTS[@]}")
 fi
 
-if [[ "${#cthemes[@]}" -eq 0 ]] ; then
-  cthemes=("${CTHEME_VARIANTS[0]}")
-fi
-
 for theme in "${themes[@]}"; do
   for color in "${colors[@]}"; do
     install "$theme" "$color"
@@ -337,5 +346,6 @@ for theme in "${themes[@]}"; do
 done
 
 install_common
+install_xresources
 
 prompt -s "Install finished..."
