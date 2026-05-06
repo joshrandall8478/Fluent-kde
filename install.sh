@@ -224,6 +224,25 @@ install_xresources() {
   cp -rf "${SRC_DIR}/configs/Xresources" "${home}/.Xresources"
 }
 
+# Rebuild Plasma's per-user service + theme caches so newly-installed look-and-feel
+# packages, plasmoids, layout templates, and SVG themes are discovered without a logout.
+refresh_caches() {
+  local home run=()
+  home="$(target_home)"
+  [[ -z "${home}" || ! -d "${home}" ]] && return 0
+  if [[ "$UID" -eq "$ROOT_UID" && -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
+    run=(sudo -u "${SUDO_USER}")
+  fi
+  prompt -i "Refreshing Plasma caches..."
+  rm -rf "${home}"/.cache/plasma_theme_*.kcache 2>/dev/null
+  rm -rf "${home}"/.cache/ksvg-elements 2>/dev/null
+  if command -v kbuildsycoca6 >/dev/null 2>&1; then
+    "${run[@]}" kbuildsycoca6 --noincremental 2>/dev/null || true
+  elif command -v kbuildsycoca5 >/dev/null 2>&1; then
+    "${run[@]}" kbuildsycoca5 --noincremental 2>/dev/null || true
+  fi
+}
+
 while [[ "$#" -gt 0 ]]; do
   case "${1:-}" in
     --round)
@@ -347,5 +366,6 @@ done
 
 install_common
 install_xresources
+refresh_caches
 
 prompt -s "Install finished..."
